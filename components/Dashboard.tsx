@@ -1,20 +1,42 @@
-import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Guia, StatusServico } from '../types';
+import React, { useEffect, useState, useMemo } from 'react';
+// Importa a função de leitura do Firestore e o tipo GuiaFS
+import { ouvirGuias } from '../services/firestore'; 
+import type { GuiaFS } from '../types/firebase'; 
+// Use os seus tipos locais se forem necessários para os cálculos
+import { Guia, StatusServico } from '../types'; 
 
-interface DashboardProps {
-  guias: Guia[];
-}
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
+// Definimos as cores para os gráficos
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-export const Dashboard: React.FC<DashboardProps> = ({ guias }) => {
+// Removemos a interface DashboardProps e o recebimento de 'guias' como prop
+export const Dashboard: React.FC = () => {
+  // 1. Adiciona o estado local para armazenar as guias buscadas do Firestore
+  const [guias, setGuias] = useState<GuiaFS[]>([]);
+
+  // 2. Adiciona a lógica useEffect para assinar as atualizações em tempo real
+  useEffect(() => {
+    const unsubscribe = ouvirGuias((list) => {
+      console.log("Guias atualizadas em tempo real:", list);
+      setGuias(list);
+    });
+    
+    // Função de limpeza para parar de ouvir o DB quando o componente é desmontado
+    return () => unsubscribe(); 
+  }, []); // Roda apenas uma vez na montagem
+
+  // NOTA: Se os tipos GuiaFS e Guia forem diferentes, você precisará de um passo de mapeamento aqui.
+  // Estou assumindo que GuiaFS possui a estrutura necessária para os cálculos abaixo.
   
   const statsComarca = useMemo(() => {
     const counts: Record<string, number> = {};
     guias.forEach(g => {
-      const comarca = g.orgaoSnapshot.comarca;
-      counts[comarca] = (counts[comarca] || 0) + 1;
+      // Usando optional chaining caso orgaoSnapshot não exista em GuiaFS/Guia
+      const comarca = g.orgaoSnapshot?.comarca; 
+      if (comarca) {
+        counts[comarca] = (counts[comarca] || 0) + 1;
+      }
     });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [guias]);
@@ -22,7 +44,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ guias }) => {
   const statsServico = useMemo(() => {
     const counts: Record<string, number> = {};
     guias.forEach(g => {
-      g.itens.forEach(item => {
+      // Iterando sobre itens
+      g.itens?.forEach(item => { 
         counts[item.descricao] = (counts[item.descricao] || 0) + item.quantidade;
       });
     });
@@ -32,6 +55,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ guias }) => {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   }, [guias]);
+
+  // O restante do seu código de renderização permanece o mesmo, 
+  // pois ele já usa a variável 'guias' e as variáveis derivadas 'statsComarca' e 'statsServico'.
 
   return (
     <div className="space-y-6">

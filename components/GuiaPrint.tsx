@@ -1,41 +1,114 @@
-
-import React, { useMemo, useState, useEffect } from 'react';
-import { Guia, ItemGuia } from '../types';
-
-interface GuiaPrintProps {
-  guia: Guia;
-  onClose: () => void;
-}
-
-interface PageChunk {
-  items: ItemGuia[];
-  isLast: boolean;
-  pageNumber: number;
-}
+import React, { useState, useEffect } from 'react';
+import { obterGuiaPorNumero } from "../services/firestore";
+import type { GuiaFS } from "../types/firebase"; // Usaremos este tipo para a guia encontrada
+// Mantenha seus tipos locais se ainda precisar deles para outras coisas, mas GuiaFS será o principal aqui
+import { Guia, ItemGuia } from '../types'; 
 
 /**
  * URL da logomarca PJERJ (fornecida por você).
- * Mantemos cache-busting com timestamp para evitar cache na produção.
- * OBS: O formato canônico do GitHub Raw costuma ser .../main/..., mas usamos exatamente o link que você forneceu.
  */
 const LOGO_URL =
   'https://raw.githubusercontent.com/carreiro-gif/digra-logo-TJ/refs/heads/main/logo_tjrj.png';
 
-export const GuiaPrint: React.FC<GuiaPrintProps> = ({ guia, onClose }) => {
-  // Fonte da logo com cache-busting
+// Removemos as props antigas (guia, onClose) e criamos um componente que gerencia seu próprio estado de busca
+export const GuiaPrint: React.FC = () => {
+  // Fonte da logo com cache-busting (mantido da sua versão original)
   const [logoSrc, setLogoSrc] = useState(`${LOGO_URL}?ts=${Date.now()}`);
+  
+  // ---> INÍCIO DO CÓDIGO NOVO (Lógica de Busca - Passo 2) <---
+  const [numeroBusca, setNumeroBusca] = useState('');
+  const [guiaEncontrada, setGuiaEncontrada] = useState<GuiaFS | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
 
-  // Auto-print no mount (pressupõe rota de preview)
-  useEffect(() => {
-    // Se seu ambiente tiver updatePreview, dispare para garantir render
-    if (typeof (window as any).updatePreview === 'function') {
-      (window as any).updatePreview();
+  const buscarGuia = async (numero: string) => {
+    setErro(null); // Limpa erros anteriores
+    // setGuiaEncontrada(null); // Opcional: limpa a guia anterior durante a busca
+    
+    if (!numero) {
+        setErro("Por favor, insira um número de guia.");
+        return;
     }
-    const timer = setTimeout(() => {
-      window.print();
-    }, 600);
-    return () => clearTimeout(timer);
+
+    try {
+      const guia = await obterGuiaPorNumero(numero);
+      
+      if (!guia) {
+        setErro(`Guia Nº ${numero} não encontrada.`);
+        setGuiaEncontrada(null); // Garante que a interface de detalhes não apareça
+      } else {
+        setGuiaEncontrada(guia);
+      }
+      
+    } catch (e) {
+      console.error("Erro ao buscar guia:", e);
+      setErro("Ocorreu um erro ao buscar a guia.");
+      setGuiaEncontrada(null);
+    }
+  };
+  // ---> FIM DO CÓDIGO NOVO (Lógica de Busca) <---
+
+  // Removemos o useEffect de auto-print que dependia da prop 'guia' antiga, 
+  // pois agora a impressão deve ser manual após a busca.
+  // useEffect apenas para renovar a logo:
+  useEffect(() => {
+    const handleRefresh = () => {
+        setLogoSrc(`${LOGO_URL}?ts=${Date.now()}`);
+    };
+    // Opcional: Chame handleRefresh se quiser garantir que a logo carregue
+    // handleRefresh(); 
   }, []);
+
+
+  // Tudo que está abaixo do return() é a interface visual (JSX)
+  return (
+    <div className="p-4"> {/* Adicionei um padding básico aqui */}
+      
+      {/* ---> INÍCIO DO CÓDIGO NOVO (Interface do Usuário - Passo 3) <--- */}
+      <div className="mb-4">
+        <h1 className="text-xl font-bold mb-2">Buscar / Imprimir Guia</h1>
+        <div className="flex gap-2">
+            <input 
+                type="text" 
+                placeholder="Digite o número da guia (ex: 2025/0001)"
+                value={numeroBusca}
+                onChange={(e) => setNumeroBusca(e.target.value)}
+                className="border p-2 rounded w-full"
+            />
+            <button 
+                onClick={() => buscarGuia(numeroBusca)}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+                Buscar
+            </button>
+        </div>
+      </div>
+
+      {erro && <p className="text-red-500 mb-4">{erro}</p>}
+
+      {guiaEncontrada && (
+        // Esta div representa a área que você pode querer estilizar para impressão
+        <div id="printable-area" className="border p-4 shadow-lg bg-white">
+          <h2>Detalhes da Guia Nº {guiaEncontrada.numero}</h2>
+          <img src={logoSrc} alt="Logo TJERJ" style={{ maxWidth: '150px' }} />
+          <p>Cliente: {guiaEncontrada.cliente}</p>
+          <p>Órgão: {guiaEncontrada.orgaoSnapshot?.nome}</p>
+          {/* Adicione mais detalhes conforme seu tipo GuiaFS */}
+          <button 
+            onClick={() => window.print()}
+            className="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Imprimir Guia
+          </button>
+        </div>
+      )}
+      {/* ---> FIM DO CÓDIGO NOVO (Interface do Usuário) <--- */}
+
+    </div>
+  );
+};
+
+export default GuiaPrint;
+
 
   const handleRefresh = () => {
     // Atualiza timestamp para renovar a logo

@@ -1,4 +1,6 @@
-
+import { upsertGuia } from "../services/firestore";
+import type { GuiaFS } from "../types/firebase";
+// Mantenha suas outras importações (useState, etc.)
 import React, { useState, useEffect } from 'react';
 import { Orgao, ItemGuia, ServicoPreco, StatusServico, Guia, Operador, ResponsavelExterno } from '../types';
 
@@ -109,14 +111,34 @@ export const GuiaForm: React.FC<GuiaFormProps> = ({
     };
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (items.length === 0) return alert('Adicione pelo menos um item');
-    
-    const guia = constructGuia();
-    if (!guia) return alert('Selecione um órgão válido');
+// Lembre-se de adicionar essas importações no topo do seu arquivo GuiaForm.tsx:
+// import { upsertGuia } from "../services/firestore";
+// import type { GuiaFS } from "../types/firebase";
 
-    onSave(guia);
+const handleSubmit = async (e: React.FormEvent) => { // Adicione 'async' aqui
+  e.preventDefault();
+
+  if (items.length === 0) {
+    return alert('Adicione pelo menos um item');
+  }
+
+  const guiaFS: GuiaFS = constructGuia(); // Use o tipo GuiaFS para garantir compatibilidade
+
+  if (!guiaFS) {
+    return alert('Selecione um órgão válido');
+  }
+
+  try {
+    // SUBSTITUIÇÃO: Use a nova função do Firestore
+    await upsertGuia(guiaFS); 
+    alert("Guia salva com sucesso no Firebase!");
+    // Opcional: Adicione aqui a lógica para limpar o formulário após o sucesso
+  } catch (error) {
+    console.error("Erro ao salvar guia:", error);
+    alert("Ocorreu um erro ao salvar a guia no Firebase.");
+  }
+};
+
   };
 
   const handlePrintClick = () => {
