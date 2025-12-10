@@ -1,11 +1,10 @@
-
 // src/services/firestore.ts
 import {
   collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc,
   query, orderBy, onSnapshot
 } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { GuiaFS, Orgao, Servico, Operador, Externo } from "../types/firebase";
+import { db } from "./firebaseConfig";
+import type { GuiaFS, Orgao, Servico, Operador, Externo } from "../types/firebase";
 
 const now = () => Date.now();
 
@@ -24,13 +23,13 @@ const col = {
  * Cria/atualiza uma Guia usando o número como ID (garante unicidade).
  * Se o doc já existe, faz merge (não perde campos existentes).
  */
-export async function upsertGuia(guia: GuiaFS): Promise<string> {
-  const numero = guia.numero.trim();
+export async function upsertGuia(guia: Partial<GuiaFS> & { numero: string }): Promise<string> {
+  const numero = guia.numero?.trim();
   if (!numero) throw new Error("Número da Guia obrigatório.");
 
   const ref = doc(db, "guias", numero);
   const payload: GuiaFS = {
-    ...guia,
+    ...(guia as GuiaFS),
     id: numero,
     createdAt: guia.createdAt || now(),
     updatedAt: now(),
@@ -48,7 +47,7 @@ export async function obterGuiaPorNumero(numero: string): Promise<GuiaFS | null>
   return snap.data() as GuiaFS;
 }
 
-/** Lista Guias (ordenadas por createdAt desc) — leitura única */
+/** Lista Guias (ordenadas por createdAt desc) */
 export async function listarGuias(limitCount = 200): Promise<GuiaFS[]> {
   const q = query(col.guias, orderBy("createdAt", "desc"));
   const snaps = await getDocs(q);
@@ -56,7 +55,7 @@ export async function listarGuias(limitCount = 200): Promise<GuiaFS[]> {
   return all.slice(0, limitCount);
 }
 
-/** Inscrição em tempo real (multiusuário): atualiza entre computadores */
+/** Inscrição em tempo real (multi-usuário) */
 export function ouvirGuias(callback: (guias: GuiaFS[]) => void): () => void {
   const q = query(col.guias, orderBy("createdAt", "desc"));
   return onSnapshot(q, (snaps) => {
@@ -65,7 +64,7 @@ export function ouvirGuias(callback: (guias: GuiaFS[]) => void): () => void {
   });
 }
 
-/** Atualiza parcialmente uma Guia (mantém o ID único) */
+/** Atualiza parcialmente uma Guia */
 export async function atualizarGuia(numero: string, parcial: Partial<GuiaFS>): Promise<void> {
   const ref = doc(db, "guias", numero);
   await updateDoc(ref, { ...parcial, updatedAt: now() });
@@ -79,10 +78,9 @@ export async function excluirGuia(numero: string): Promise<void> {
 /** ========================= ÓRGÃOS ========================= **/
 
 export async function salvarOrgao(orgao: Orgao): Promise<string> {
-  // ID legível opcional: use a sigla como ID; senão usa o nome
   const id = (orgao.sigla || orgao.nome).trim().toUpperCase();
   const ref = doc(db, "orgaos", id);
-  const payload: Orgao = { ...orgao, createdAt: orgao.createdAt || now(), updatedAt: now() };
+  const payload: Orgao = { ...orgao, createdAt: orgao.createdAt || now(), updatedAt: now() } as Orgao;
   await setDoc(ref, payload, { merge: true });
   return ref.id;
 }
@@ -105,7 +103,7 @@ export async function excluirOrgao(id: string): Promise<void> {
 export async function salvarServico(servico: Servico): Promise<string> {
   const id = servico.nome.trim().toLowerCase().replace(/\s+/g, "-");
   const ref = doc(db, "servicos", id);
-  const payload: Servico = { ...servico, createdAt: servico.createdAt || now(), updatedAt: now() };
+  const payload: Servico = { ...servico, createdAt: servico.createdAt || now(), updatedAt: now() } as Servico;
   await setDoc(ref, payload, { merge: true });
   return ref.id;
 }
@@ -128,7 +126,7 @@ export async function excluirServico(id: string): Promise<void> {
 export async function salvarOperador(op: Operador): Promise<string> {
   const id = (op.matricula || op.nome).trim();
   const ref = doc(db, "operadores", id);
-  const payload: Operador = { ...op, createdAt: op.createdAt || now(), updatedAt: now() };
+  const payload: Operador = { ...op, createdAt: op.createdAt || now(), updatedAt: now() } as Operador;
   await setDoc(ref, payload, { merge: true });
   return ref.id;
 }
@@ -151,7 +149,7 @@ export async function excluirOperador(id: string): Promise<void> {
 export async function salvarExterno(ex: Externo): Promise<string> {
   const id = ex.nome.trim().toLowerCase().replace(/\s+/g, "-");
   const ref = doc(db, "externos", id);
-  const payload: Externo = { ...ex, createdAt: ex.createdAt || now(), updatedAt: now() };
+  const payload: Externo = { ...ex, createdAt: ex.createdAt || now(), updatedAt: now() } as Externo;
   await setDoc(ref, payload, { merge: true });
   return ref.id;
 }
