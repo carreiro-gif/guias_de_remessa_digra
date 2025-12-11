@@ -1,41 +1,47 @@
 // src/services/firebaseConfig.ts
 import { initializeApp } from "firebase/app";
 import {
+  getFirestore,
+  enableIndexedDbPersistence,
   initializeFirestore,
   persistentLocalCache,
-  persistentMultipleTabManager,
-  enableIndexedDbPersistence,
-  getFirestore,
+  persistentMultipleTabManager
 } from "firebase/firestore";
 
 /**
- * Use variáveis de ambiente para deploy (Vite -> import.meta.env.VITE_*)
- * Em desenvolvimento ele usará as chaves hardcoded como fallback.
+ * Usa variáveis de ambiente do Vite (prefixo VITE_).
+ * Em produção no Vercel, defina essas chaves no painel de Environment Variables.
  */
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDbntaHfsUNK-dHUtS6aYp_CNi2b4jB2N8",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "guia-de-remessa-digra.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "guia-de-remessa-digra",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "guia-de-remessa-digra.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "694403541232",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:694403541232:web:258e668cebff2dee5b3a35",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ?? "",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ?? "",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID ?? "",
 };
 
-// Inicializa o app Firebase
+// validação básica para ajudar a depuração
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  // NÃO pare a aplicação em produção — apenas um aviso no console
+  console.warn("[firebaseConfig] Variáveis de ambiente do Firebase parecem não estar definidas.");
+}
+
+// Inicializa app
 const app = initializeApp(firebaseConfig);
 
-// Inicializa Firestore com cache persistente (offline)
+// Inicializa Firestore preferindo a versão com cache persistente (modular)
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),
   }),
 });
 
-// Tentativa de habilitar persistence (falha é tratada)
+// Tenta habilitar persistence (IndexedDB) com fallback
 enableIndexedDbPersistence(db).catch((err) => {
-  // Conflito multi-aba ou navegadores sem suporte
   console.warn("IndexedDB persistence não habilitada:", err && err.message ? err.message : err);
 });
 
-// Export fallback getFirestore se precisar
+// Export fallback clássico (caso precise de getFirestore)
 export const dbFallback = getFirestore(app);
+export default app;
