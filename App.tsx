@@ -184,27 +184,15 @@ function App() {
   // RENDER
   // ======================================================================================
   return (
-    <div className="flex h-screen bg-slate-100">
-
-      {/* BOTÃO DE TESTE – FIXO NO CANTO */}
-      <button
-        onClick={testarFirestore}
-        style={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
-          zIndex: 9999,
-          padding: "10px 16px",
-          background: "#2563eb",
-          color: "white",
-          borderRadius: 8,
-          border: "none",
-          fontWeight: "bold",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
-        }}
-      >
-        TESTAR FIRESTORE
-      </button>
+    // ==========================================
+// BOTÃO DE TESTE – SEM RISCO DE SUMIR
+// ==========================================
+<button
+  onClick={testarFirestore}
+  className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded shadow-lg font-bold"
+>
+  TESTAR FIRESTORE
+</button>
 
       {/* SIDEBAR */}
       <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
