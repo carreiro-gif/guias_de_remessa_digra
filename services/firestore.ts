@@ -3,12 +3,11 @@ import {
   collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc,
   query, orderBy, onSnapshot
 } from "firebase/firestore";
-import { db } from "./firebaseConfig"; // relativo ao arquivo acima
+import { db } from "./firebaseConfig";
 import type { GuiaFS, Orgao, Servico, Operador, Externo } from "../types/firebase";
 
 const now = () => Date.now();
 
-// coleções
 const col = {
   guias: collection(db, "guias"),
   orgaos: collection(db, "orgaos"),
@@ -36,8 +35,7 @@ export async function upsertGuia(guia: GuiaFS): Promise<string> {
 
 /** obter guia por numero */
 export async function obterGuiaPorNumero(numero: string): Promise<GuiaFS | null> {
-  const ref = doc(db, "guias", numero);
-  const snap = await getDoc(ref);
+  const snap = await getDoc(doc(db, "guias", numero));
   if (!snap.exists()) return null;
   return snap.data() as GuiaFS;
 }
@@ -49,16 +47,13 @@ export async function listarGuias(limitCount = 200): Promise<GuiaFS[]> {
   return snaps.docs.map(d => d.data() as GuiaFS).slice(0, limitCount);
 }
 
-/** snapshot real-time */
+/** real-time subscription */
 export function ouvirGuias(callback: (guias: GuiaFS[]) => void): () => void {
   const q = query(col.guias, orderBy("createdAt", "desc"));
-  return onSnapshot(q, (snaps) => {
-    callback(snaps.docs.map(d => d.data() as GuiaFS));
-  });
+  return onSnapshot(q, (snaps) => callback(snaps.docs.map(d => d.data() as GuiaFS)));
 }
 
-// Exporte também as funções de orgaos/servicos/operadores se usar no app.
-// (adicione conforme necessário)
+/** Exemplo rápido: salvar orgão */
 export async function salvarOrgao(orgao: Orgao): Promise<string> {
   const id = (orgao.sigla || orgao.nome).trim().toUpperCase();
   const ref = doc(db, "orgaos", id);
@@ -66,3 +61,5 @@ export async function salvarOrgao(orgao: Orgao): Promise<string> {
   await setDoc(ref, payload, { merge: true });
   return ref.id;
 }
+
+/** Exporte outras funções conforme precisar... */
