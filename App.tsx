@@ -15,11 +15,9 @@ import {
   INITIAL_SERVICOS,
 } from "./data/mockData";
 
-import { upsertGuia } from "./services/firestore";
-
-/* =======================================================================================
-   ÍCONES
-======================================================================================= */
+// ========================================================================================
+// ÍCONES
+// ========================================================================================
 const IconPlus = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
     viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -37,14 +35,15 @@ const IconTruck = IconPlus;
 const IconPrinter = IconPlus;
 const IconTags = IconPlus;
 
-/* =======================================================================================
-   LOGO
-======================================================================================= */
+// ========================================================================================
+// LOGO
+// ========================================================================================
 const LogoDigra = ({ size = "large" }: { size?: "small" | "large" }) => (
   <div
     className={`
       rounded-full bg-[#004aad] border-2 border-white 
-      flex items-center justify-center font-bold text-white
+      flex items-center justify-center font-bold text-white tracking-widest
+      shadow-md ring-2 ring-[#004aad]
       ${size === "large" ? "w-20 h-20 text-lg" : "w-10 h-10 text-[9px]"}
     `}
   >
@@ -52,42 +51,11 @@ const LogoDigra = ({ size = "large" }: { size?: "small" | "large" }) => (
   </div>
 );
 
-/* =======================================================================================
-   APP
-======================================================================================= */
+// ========================================================================================
+// APP
+// ========================================================================================
 function App() {
 
-  /* ================= TESTE FIRESTORE ================= */
-  const testarFirestore = async () => {
-    try {
-      const sample = {
-        numero: "TESTE-0001",
-        dataEmissao: new Date().toISOString(),
-        orgaoSnapshot: { nome: "ÓRGÃO TESTE", sigla: "TST" },
-        solicitante: "Teste",
-        observacoes: "Criado pelo botão de teste",
-        responsaveisExternos: [],
-        itens: [
-          {
-            quantidade: 1,
-            servico: "Entrega",
-            descricao: "Teste Firestore",
-            operador: "Sistema",
-          },
-        ],
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-
-      const id = await upsertGuia(sample as any);
-      alert("🔥 FIRESTORE OK! Guia salva com ID: " + id);
-    } catch (e) {
-      console.error(e);
-      alert("❌ Erro ao salvar no Firestore. Veja o console.");
-    }
-  };
-
-  /* ================= STATES ================= */
   const [activeTab, setActiveTab] = useState<
     "list" | "form" | "orgaos" | "operadores" | "externos" | "servicos"
   >("list");
@@ -97,11 +65,14 @@ function App() {
   const [operadores, setOperadores] = useState<Operador[]>([]);
   const [responsaveis, setResponsaveis] = useState<ResponsavelExterno[]>([]);
   const [servicos, setServicos] = useState<ServicoPreco[]>([]);
+
   const [editingGuia, setEditingGuia] = useState<Partial<Guia>>();
   const [printGuia, setPrintGuia] = useState<Guia | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  /* ================= LOAD LOCAL ================= */
+  // ======================================================================================
+  // LOAD LOCAL
+  // ======================================================================================
   useEffect(() => {
     setGuias(JSON.parse(localStorage.getItem("digra_guias") || "[]"));
     setOrgaos(JSON.parse(localStorage.getItem("digra_orgaos") || "null") || INITIAL_ORGAOS);
@@ -110,48 +81,52 @@ function App() {
     setServicos(JSON.parse(localStorage.getItem("digra_servicos") || "null") || INITIAL_SERVICOS);
   }, []);
 
-  /* ================= RENDER ================= */
-        // ======================================================================================
+  // ======================================================================================
+  // SAVE LOCAL
+  // ======================================================================================
+  useEffect(() => localStorage.setItem("digra_guias", JSON.stringify(guias)), [guias]);
+  useEffect(() => localStorage.setItem("digra_orgaos", JSON.stringify(orgaos)), [orgaos]);
+  useEffect(() => localStorage.setItem("digra_operadores", JSON.stringify(operadores)), [operadores]);
+  useEffect(() => localStorage.setItem("digra_responsaveis", JSON.stringify(responsaveis)), [responsaveis]);
+  useEffect(() => localStorage.setItem("digra_servicos", JSON.stringify(servicos)), [servicos]);
+
+  // ======================================================================================
   // RENDER
   // ======================================================================================
-    // ======================================================================================
-  // RENDER
-  // ======================================================================================
-return (
-  <div className="flex h-screen bg-slate-100">
+  return (
+    <div className="flex h-screen bg-slate-100">
 
-    {/* BOTÃO DE TESTE – FIXO */}
-    <button
-      onClick={testarFirestore}
-      className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded shadow-lg font-bold"
-    >
-      TESTAR FIRESTORE
-    </button>
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
+        <div className="p-6 border-b border-slate-700 flex flex-col items-center">
+          <LogoDigra />
+          <h1 className="text-sm mt-3 font-bold tracking-wider">GUIAS DE REMESSA</h1>
+        </div>
+      </aside>
 
-    {/* SIDEBAR */}
-    <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-      <div className="p-6 border-b border-slate-700 flex flex-col items-center">
-        <LogoDigra />
-        <h1 className="text-sm mt-3 font-bold tracking-wider">
-          GUIAS DE REMESSA
-        </h1>
-      </div>
+      {/* CONTEÚDO */}
+      <main className="flex-1 p-6 overflow-auto">
+        <div className="max-w-6xl mx-auto">
+          {activeTab === "form" && (
+            <GuiaForm
+              initialData={editingGuia}
+              onSave={(g) => setGuias([g, ...guias])}
+              onCancel={() => setActiveTab("list")}
+              onPrint={(g) => setPrintGuia(g)}
+              orgaosList={orgaos}
+              operadoresList={operadores}
+              responsaveisList={responsaveis}
+              servicosList={servicos}
+            />
+          )}
+        </div>
+      </main>
 
-      <nav className="flex-1 p-4 space-y-2">
-        {/* todo o conteúdo da sidebar permanece igual */}
-      </nav>
-    </aside>
-
-    {/* CONTEÚDO PRINCIPAL */}
-    <main className="flex-1 overflow-auto p-6">
-      {/* todo o conteúdo principal permanece igual */}
-    </main>
-
-    {printGuia && (
-      <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
-    )}
-  </div>
-);
+      {printGuia && (
+        <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
+      )}
+    </div>
+  );
 }
 
 export default App;
