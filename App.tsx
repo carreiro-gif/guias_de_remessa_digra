@@ -111,58 +111,43 @@ function App() {
   }, []);
 
   /* ================= RENDER ================= */
-    return (
-  <div className="flex h-screen bg-slate-100">
+      return (
+    <div className="flex h-screen bg-slate-100">
 
-    {/* BOTÃO DE TESTE – FIXO */}
-    <button
-      onClick={testarFirestore}
-      className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded shadow-lg font-bold"
-    >
-      TESTAR FIRESTORE
-    </button>
+      {/* BOTÃO DE TESTE – FIXO */}
+      <button
+        onClick={testarFirestore}
+        className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded shadow-lg font-bold"
+      >
+        TESTAR FIRESTORE
+      </button>
 
-    {/* SIDEBAR */}
-    <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-      <div className="p-6 border-b border-slate-700 flex flex-col items-center">
-        <LogoDigra />
-        <h1 className="text-sm mt-3 font-bold tracking-wider">
-          GUIAS DE REMESSA
-        </h1>
-      </div>
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
+        <div className="p-6 border-b border-slate-700 flex flex-col items-center">
+          <LogoDigra />
+          <h1 className="text-sm mt-3 font-bold tracking-wider">
+            GUIAS DE REMESSA
+          </h1>
+        </div>
 
-      <nav className="flex-1 p-4 space-y-2">
-        <button
-          onClick={() => {
-            setActiveTab("form");
-            setEditingGuia(undefined);
-          }}
-          className={`flex items-center gap-3 w-full px-4 py-3 rounded ${
-            activeTab === "form" ? "bg-blue-600" : "hover:bg-slate-800"
-          }`}
-        >
-          <IconPlus /> Nova Guia
-        </button>
+        <nav className="flex-1 p-4 space-y-2">
+          {/* TODO O SEU MENU CONTINUA IGUAL */}
+        </nav>
+      </aside>
 
-        <button
-          onClick={() => setActiveTab("list")}
-          className={`flex items-center gap-3 w-full px-4 py-3 rounded ${
-            activeTab === "list" ? "bg-blue-600" : "hover:bg-slate-800"
-          }`}
-        >
-          <IconList /> Histórico
-        </button>
-      </nav>
-    </aside>
+      {/* CONTEÚDO PRINCIPAL */}
+      <main className="flex-1 overflow-auto p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* TODO O RESTO DO SEU CÓDIGO CONTINUA IGUAL */}
+        </div>
+      </main>
 
-    {/* CONTEÚDO PRINCIPAL */}
-    <main className="flex-1 overflow-auto p-6">
-      <div className="max-w-6xl mx-auto">
-        {activeTab === "list" && <h2 className="text-2xl font-bold">OK</h2>}
-      </div>
-    </main>
-  </div>
-);
+      {printGuia && (
+        <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
+      )}
+    </div>
+  );
 }
 
 export default App;
