@@ -114,7 +114,7 @@ function App() {
   return (
   <div className="flex h-screen bg-slate-100">
 
-    {/* BOTÃO DE TESTE – FIXO, NÃO SOME */}
+    {/* BOTÃO DE TESTE – FIXO */}
     <button
       onClick={testarFirestore}
       className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded shadow-lg font-bold"
@@ -126,20 +126,21 @@ function App() {
     <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
       <div className="p-6 border-b border-slate-700 flex flex-col items-center">
         <LogoDigra />
-        <h1 className="text-sm mt-3 font-bold tracking-wider">
-          GUIAS DE REMESSA
-        </h1>
+        <h1 className="text-sm mt-3 font-bold tracking-wider">GUIAS DE REMESSA</h1>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
-        {/* … todo o resto da sidebar permanece IGUAL … */}
+        {/* ... TODO O SEU MENU CONTINUA IGUAL ... */}
       </nav>
     </aside>
 
     {/* CONTEÚDO PRINCIPAL */}
     <main className="flex-1 overflow-auto p-6">
       <div className="max-w-6xl mx-auto">
-        {/* … todo o conteúdo principal permanece IGUAL … */}
+
+        {/* AQUI FICA TODO O SEU CONTEÚDO EXISTENTE */}
+        {/* form, list, managers, tabela, etc */}
+
       </div>
     </main>
 
