@@ -94,39 +94,33 @@ function App() {
   // RENDER
   // ======================================================================================
   return (
-    <div className="flex h-screen bg-slate-100">
+  <div className="flex h-screen bg-slate-100">
 
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-        <div className="p-6 border-b border-slate-700 flex flex-col items-center">
-          <LogoDigra />
-          <h1 className="text-sm mt-3 font-bold tracking-wider">GUIAS DE REMESSA</h1>
-        </div>
-      </aside>
+    {/* SIDEBAR */}
+    <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
+      <div className="p-6 border-b border-slate-700 flex flex-col items-center">
+        <LogoDigra />
+        <h1 className="text-sm mt-3 font-bold tracking-wider">
+          GUIAS DE REMESSA
+        </h1>
+      </div>
 
-      {/* CONTEÚDO */}
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="max-w-6xl mx-auto">
-          {activeTab === "form" && (
-            <GuiaForm
-              initialData={editingGuia}
-              onSave={(g) => setGuias([g, ...guias])}
-              onCancel={() => setActiveTab("list")}
-              onPrint={(g) => setPrintGuia(g)}
-              orgaosList={orgaos}
-              operadoresList={operadores}
-              responsaveisList={responsaveis}
-              servicosList={servicos}
-            />
-          )}
-        </div>
-      </main>
+      {/* seu nav continua aqui sem mudar nada */}
+    </aside>
 
-      {printGuia && (
-        <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
-      )}
-    </div>
-  );
+    {/* CONTEÚDO PRINCIPAL */}
+    <main className="flex-1 overflow-auto p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* TODO o conteúdo que você já tem */}
+      </div>
+    </main>
+
+    {printGuia && (
+      <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
+    )}
+
+  </div>
+);
 }
 
 export default App;
