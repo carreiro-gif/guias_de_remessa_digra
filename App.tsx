@@ -118,8 +118,7 @@ function App() {
   // RENDER
   // ======================================================================================
 return (
-  <div className="flex h-screen bg-slate-100">
-
+  <>
     {/* BOTÃO DE TESTE – FIXO */}
     <button
       onClick={testarFirestore}
@@ -128,35 +127,34 @@ return (
       TESTAR FIRESTORE
     </button>
 
-    {/* SIDEBAR */}
-    <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-      <div className="p-6 border-b border-slate-700 flex flex-col items-center">
-        <LogoDigra />
-        <h1 className="text-sm mt-3 font-bold tracking-wider">
-          GUIAS DE REMESSA
-        </h1>
-      </div>
+    <div className="flex h-screen bg-slate-100">
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
+        <div className="p-6 border-b border-slate-700 flex flex-col items-center">
+          <LogoDigra />
+          <h1 className="text-sm mt-3 font-bold tracking-wider">
+            GUIAS DE REMESSA
+          </h1>
+        </div>
 
-      <nav className="flex-1 p-4 space-y-2">
-        {/* ... SEU MENU AQUI (NÃO MEXA) */}
-      </nav>
-    </aside>
+        <nav className="flex-1 p-4 space-y-2">
+          {/* TODO O SEU MENU AQUI (SEM ALTERAR NADA) */}
+        </nav>
+      </aside>
 
-    {/* CONTEÚDO PRINCIPAL */}
-    <main className="flex-1 overflow-auto p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* TODO O RESTO DO SEU CONTEÚDO */}
-      </div>
-    </main>
+      {/* CONTEÚDO PRINCIPAL */}
+      <main className="flex-1 overflow-auto p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* TODO O CONTEÚDO QUE JÁ EXISTE */}
+        </div>
+      </main>
 
-    {printGuia && (
-      <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
-    )}
-
-  </div>
+      {printGuia && (
+        <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
+      )}
+    </div>
+  </>
 );
-
-
 }
 
 export default App;
