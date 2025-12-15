@@ -112,35 +112,42 @@ function App() {
 
   /* ================= RENDER ================= */
   return (
-    <div className="flex h-screen bg-slate-100">
+  <div className="flex h-screen bg-slate-100">
 
-      {/* BOTÃO TESTE FIRESTORE */}
-      <button
-        onClick={testarFirestore}
-        className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded shadow-lg font-bold"
-      >
-        TESTAR FIRESTORE
-      </button>
+    {/* BOTÃO DE TESTE – FIXO, NÃO SOME */}
+    <button
+      onClick={testarFirestore}
+      className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded shadow-lg font-bold"
+    >
+      TESTAR FIRESTORE
+    </button>
 
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-        <div className="p-6 border-b border-slate-700 flex flex-col items-center">
-          <LogoDigra />
-          <h1 className="text-sm mt-3 font-bold">GUIAS DE REMESSA</h1>
-        </div>
-      </aside>
+    {/* SIDEBAR */}
+    <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
+      <div className="p-6 border-b border-slate-700 flex flex-col items-center">
+        <LogoDigra />
+        <h1 className="text-sm mt-3 font-bold tracking-wider">
+          GUIAS DE REMESSA
+        </h1>
+      </div>
 
-      {/* CONTEÚDO */}
-      <main className="flex-1 p-6 overflow-auto">
-        <h2 className="text-xl font-bold mb-4">Sistema funcionando</h2>
-        <p>Se o botão salvar no Firestore funcionar, está tudo certo.</p>
-      </main>
+      <nav className="flex-1 p-4 space-y-2">
+        {/* … todo o resto da sidebar permanece IGUAL … */}
+      </nav>
+    </aside>
 
-      {printGuia && (
-        <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
-      )}
-    </div>
-  );
+    {/* CONTEÚDO PRINCIPAL */}
+    <main className="flex-1 overflow-auto p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* … todo o conteúdo principal permanece IGUAL … */}
+      </div>
+    </main>
+
+    {printGuia && (
+      <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />
+    )}
+  </div>
+);
 }
 
 export default App;
