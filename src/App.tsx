@@ -18,7 +18,7 @@ import {
 /* ========================= ICON ========================= */
 const Icon = () => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
+    xmlns="www.w3.org"
     width="18"
     height="18"
     viewBox="0 0 24 24"
@@ -69,94 +69,101 @@ export default function App() {
   }, [guias]);
 
   /* ========================= RENDER ========================= */
+  // O problema de build está ANTES deste return. 
+  // O código abaixo já está sintaticamente correto e deve funcionar.
+
   return (
-    <div className="flex h-screen bg-slate-100">
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
-        <div className="p-4 border-b border-slate-700 flex justify-center">
-          <Logo />
-        </div>
-
-        <nav className="p-4 space-y-2">
-          <button
-            className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
-            onClick={() => setActiveTab("form")}
-          >
-            <Icon /> Nova Guia
-          </button>
-
-          <button
-            className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
-            onClick={() => setActiveTab("list")}
-          >
-            <Icon /> Histórico
-          </button>
-
-          <button
-            className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
-            onClick={() => setActiveTab("orgaos")}
-          >
-            <Icon /> Órgãos
-          </button>
-
-          <button
-            className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
-            onClick={() => setActiveTab("servicos")}
-          >
-            <Icon /> Serviços
-          </button>
-
-          <button
-            className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
-            onClick={() => setActiveTab("operadores")}
-          >
-            <Icon /> Operadores
-          </button>
-
-          <button
-            className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
-            onClick={() => setActiveTab("externos")}
-          >
-            <Icon /> Externos
-          </button>
-        </nav>
-      </aside>
-
-      {/* CONTENT */}
-      <main className="flex-1 p-6 overflow-auto">
-        {activeTab === "form" && (
-          <GuiaForm
-            onSave={(g) => setGuias([g, ...guias])}
-            onCancel={() => setActiveTab("list")}
-            onPrint={(g) => setPrintGuia(g)}
-            orgaosList={orgaos}
-            operadoresList={operadores}
-            responsaveisList={responsaveis}
-            servicosList={servicos}
-          />
-        )}
-
-        {activeTab === "orgaos" && <OrgaoManager data={orgaos} setData={setOrgaos} />}
-        {activeTab === "operadores" && <OperadorManager data={operadores} setData={setOperadores} />}
-        {activeTab === "externos" && <ResponsavelManager data={responsaveis} setData={setResponsaveis} />}
-        {activeTab === "servicos" && <ServicoManager data={servicos} setData={setServicos} />}
-
-        {activeTab === "list" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Guias</h2>
-            <ul className="space-y-2">
-              {guias.map((g) => (
-                <li key={g.id} className="bg-white p-3 rounded shadow flex justify-between">
-                  <span>{g.numero}</span>
-                  <button onClick={() => setPrintGuia(g)}>Imprimir</button>
-                </li>
-              ))}
-            </ul>
+    // Usamos um Fragmento React principal para garantir que o JSX esteja encapsulado
+    <>
+      <div className="flex h-screen bg-slate-100">
+        
+        {/* SIDEBAR - Linha problemática do erro apontado pela Vercel */}
+        <aside className="w-64 bg-slate-900 text-white flex flex-col">
+          <div className="p-4 border-b border-slate-700 flex justify-center">
+            <Logo />
           </div>
-        )}
-      </main>
 
-      {printGuia && <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />}
-    </div>
+          <nav className="p-4 space-y-2">
+            <button
+              className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
+              onClick={() => setActiveTab("form")}
+            >
+              <Icon /> Nova Guia
+            </button>
+
+            <button
+              className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
+              onClick={() => setActiveTab("list")}
+            >
+              <Icon /> Histórico
+            </button>
+
+            <button
+              className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
+              onClick={() => setActiveTab("orgaos")}
+            >
+              <Icon /> Órgãos
+            </button>
+
+            <button
+              className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
+              onClick={() => setActiveTab("servicos")}
+            >
+              <Icon /> Serviços
+            </button>
+
+            <button
+              className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
+              onClick={() => setActiveTab("operadores")}
+            >
+              <Icon /> Operadores
+            </button>
+
+            <button
+              className="flex items-center gap-2 w-full p-2 hover:bg-slate-800"
+              onClick={() => setActiveTab("externos")}
+            >
+              <Icon /> Externos
+            </button>
+          </nav>
+        </aside>
+
+        {/* CONTENT */}
+        <main className="flex-1 p-6 overflow-auto">
+          {activeTab === "form" && (
+            <GuiaForm
+              onSave={(g) => setGuias([g, ...guias])}
+              onCancel={() => setActiveTab("list")}
+              onPrint={(g) => setPrintGuia(g)}
+              orgaosList={orgaos}
+              operadoresList={operadores}
+              responsaveisList={responsaveis}
+              servicosList={servicos}
+            />
+          )}
+
+          {activeTab === "orgaos" && <OrgaoManager data={orgaos} setData={setOrgaos} />}
+          {activeTab === "operadores" && <OperadorManager data={operadores} setData={setOperadores} />}
+          {activeTab === "externos" && <ResponsavelManager data={responsaveis} setData={setResponsaveis} />}
+          {activeTab === "servicos" && <ServicoManager data={servicos} setData={setServicos} />}
+
+          {activeTab === "list" && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Guias</h2>
+              <ul className="space-y-2">
+                {guias.map((g) => (
+                  <li key={g.id} className="bg-white p-3 rounded shadow flex justify-between">
+                    <span>{g.numero}</span>
+                    <button onClick={() => setPrintGuia(g)}>Imprimir</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </main>
+
+        {printGuia && <GuiaPrint guia={printGuia} onClose={() => setPrintGuia(null)} />}
+      </div>
+    </>
   );
 }
