@@ -1,4 +1,3 @@
-// NOVO CODIGO App.tsx OTIMIZADO
 import React, { useEffect, useState, Fragment } from "react";
 import { Guia, Orgao, Operador, ResponsavelExterno, ServicoPreco } from "./types";
 import { GuiaForm } from "./components/GuiaForm";
@@ -47,7 +46,6 @@ export default function App() {
     localStorage.setItem("digra_guias", JSON.stringify(guias));
   }, [guias]);
 
-  // Refatoração para garantir que a estrutura do return seja robusta
   const renderContent = () => {
     switch (activeTab) {
       case "form":
@@ -90,7 +88,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-100">
-      {/* BARRA LATERAL (Nova localização, longe da linha 197 anterior) */}
+      {/* BARRA LATERAL */}
       <aside className="w-64 bg-slate-900 text-white flex flex-col">
         <div className="p-4 border-b border-slate-700 flex justify-center">
           <Logo />
@@ -105,7 +103,6 @@ export default function App() {
         </nav>
       </aside>
 
-      {/* CONTENT (Agora usa a função renderContent) */}
       <main className="flex-1 p-6 overflow-auto">
         {renderContent()}
       </main>
